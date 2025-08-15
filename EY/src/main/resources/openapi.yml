@@ -1,0 +1,266 @@
+openapi: 3.0.3
+info:
+  title: API de Gestión de Usuarios
+  description: API para la creación y gestión de usuarios.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080
+    description: Servidor local
+
+paths:
+  /usuarios:
+    post:
+      summary: Crear un nuevo usuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UsuarioRequestDto'
+      responses:
+        '201':
+          description: Usuario creado correctamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseDtoUsuarioResponseDto'
+        '400':
+          description: Error de validación
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseDtoMensaje'
+        '409':
+          description: Correo ya registrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseDtoMensaje'
+
+    get:
+      summary: Listar todos los usuarios
+      responses:
+        '200':
+          description: Lista de usuarios
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UsuarioResponseListDto'
+
+  /usuarios/{correo}:
+    get:
+      summary: Obtener un usuario por correo
+      parameters:
+        - name: correo
+          in: path
+          required: true
+          schema:
+            type: string
+            format: email
+      responses:
+        '200':
+          description: Usuario encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseDtoUsuarioResponseDto'
+        '404':
+          description: Usuario no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseDtoMensaje'
+
+    put:
+      summary: Actualizar un usuario
+      parameters:
+        - name: correo
+          in: path
+          required: true
+          schema:
+            type: string
+            format: email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UsuarioRequestDto'
+      responses:
+        '200':
+          description: Usuario actualizado correctamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseDtoUsuarioResponseDto'
+        '400':
+          description: Error de validación
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseDtoMensaje'
+        '404':
+          description: Usuario no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseDtoMensaje'
+
+    patch:
+      summary: Actualización parcial de usuario
+      parameters:
+        - name: correo
+          in: path
+          required: true
+          schema:
+            type: string
+            format: email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UsuarioRequestDto'
+      responses:
+        '200':
+          description: Usuario actualizado parcialmente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseDtoUsuarioResponseDto'
+        '400':
+          description: Error de validación
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseDtoMensaje'
+        '404':
+          description: Usuario no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseDtoMensaje'
+
+    delete:
+      summary: Eliminar un usuario
+      parameters:
+        - name: correo
+          in: path
+          required: true
+          schema:
+            type: string
+            format: email
+      responses:
+        '204':
+          description: Usuario eliminado correctamente
+        '404':
+          description: Usuario no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseDtoMensaje'
+
+components:
+  schemas:
+    UsuarioRequestDto:
+      type: object
+      required:
+        - nombre
+        - correo
+        - contraseña
+      properties:
+        nombre:
+          type: string
+        correo:
+          type: string
+          format: email
+        contraseña:
+          type: string
+          description: "Una mayúscula, letras minúsculas y al menos dos números"
+        telefonos:
+          type: array
+          items:
+            $ref: '#/components/schemas/TelefonoRequest'
+
+    UsuarioResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        creado:
+          type: string
+          format: date-time
+        modificado:
+          type: string
+          format: date-time
+        ultimoLogin:
+          type: string
+          format: date-time
+        token:
+          type: string
+        activo:
+          type: boolean
+
+    UsuarioResponseListDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        nombre:
+          type: string
+        correo:
+          type: string
+          format: email
+        contraseña:
+          type: string
+        creado:
+          type: string
+          format: date-time
+        modificado:
+          type: string
+          format: date-time
+        ultimoLogin:
+          type: string
+          format: date-time
+        token:
+          type: string
+        activo:
+          type: boolean
+        role:
+          type: string
+        telefonos:
+          type: array
+          items:
+            $ref: '#/components/schemas/TelefonoRequest'
+
+    TelefonoRequest:
+      type: object
+      properties:
+        numero:
+          type: string
+        codigoCiudad:
+          type: string
+        codigoPais:
+          type: string
+
+    ApiResponseDtoUsuarioResponseDto:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/UsuarioResponseDto'
+        mensaje:
+          type: string
+
+    ApiResponseDtoMensaje:
+      type: object
+      properties:
+        data:
+          type: object
+          nullable: true
+        mensaje:
+          type: string

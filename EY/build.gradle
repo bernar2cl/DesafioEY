@@ -1,0 +1,97 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.5.4'
+	id 'io.spring.dependency-management' version '1.1.7'
+	id 'org.openapi.generator' version '7.8.0' // Plugin para generar código desde OpenAPI
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+description = 'Demo project for Spring Boot'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+springBoot {
+	mainClass = 'com.example.EY.EyApplication'
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+	maven { url 'https://repo.spring.io/snapshot' }
+}
+
+dependencies {
+	// Spring Boot starters
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	// Base de datos
+	runtimeOnly 'com.h2database:h2'
+
+	// JWT
+	implementation 'com.auth0:java-jwt:4.3.0'
+
+	// OpenAPI y Swagger
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
+	implementation 'io.swagger.core.v3:swagger-annotations:2.2.22'
+	implementation 'org.openapitools:jackson-databind-nullable:0.2.6'
+
+	// MapStruct
+	implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+
+	// Jakarta Servlet API (solo en tiempo de compilación)
+	compileOnly 'jakarta.servlet:jakarta.servlet-api:6.0.0'
+
+	// Lombok
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	// Testing
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+// Configuración OpenAPI Generator
+/*openApiGenerate {
+	generatorName = "spring"
+	inputSpec = "$rootDir/src/main/resources/openapi.yml".toString()
+	outputDir = "$buildDir/generated"
+	apiPackage = "com.example.EY"
+	modelPackage = "com.example.model"
+	invokerPackage = "com.example.invoker"
+	additionalProperties = [
+			library               : "spring-boot",
+			interfaceOnly         : "false",
+			useJakartaEe          : "true",
+			useSpringBoot3        : "true",
+			generateSupportingFiles: "false" // evita la clase main generada automáticamente
+	]
+}*/
+
+sourceSets {
+	main {
+		java {
+			srcDir "$buildDir/generated/src/main/java"
+		}
+	}
+}
+
+// Generar código antes de compilar
+//compileJava.dependsOn tasks.openApiGenerate
